@@ -4,16 +4,14 @@ import ReactDOM from 'react-dom';
 import { Route, BrowserRouter } from 'react-router-dom';
 import registerServiceWorker from './registerServiceWorker';
 
-import { MuiThemeProvider } from '@material-ui/core';
 import { theme } from './theme';
 
-import Login from './components/Login';
 import { AccessDenied, ChangePassword, ConfirmEmail, ForgotPassword, 
-         LockedOut, LoggedOut, ResetPassword, ResetPasswordConfirmation }
-from './components/Auth';
+         LockedOut, Login, LoggedOut, ResetPassword, ResetPasswordConfirmation }
+  from './components/Auth';
 import { resetWarningCache } from 'prop-types';
+import { MuiThemeProvider } from '@material-ui/core/styles';
 
-import './custom.css'
 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
