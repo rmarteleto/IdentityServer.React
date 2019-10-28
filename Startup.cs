@@ -23,6 +23,12 @@ namespace IdentityServer.React
 
             services.AddControllersWithViews();
 
+            var builder = services.AddIdentityServer()
+                .AddInMemoryIdentityResources(Config.GetIdentityResources())
+                .AddInMemoryApiResources(Config.GetApis())
+                .AddInMemoryClients(Config.GetClients())
+                .AddTestUsers(Config.GetUsers());
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
@@ -49,6 +55,10 @@ namespace IdentityServer.React
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+            app.UseIdentityServer();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
