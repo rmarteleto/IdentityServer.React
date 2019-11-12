@@ -13,21 +13,43 @@ import {
 } from "@material-ui/core";
 import { LockOutlined, LockOpenOutlined } from "@material-ui/icons";
 import useStyles from "../styles";
+import axios from "axios";
 
 const Login = () => {
   const classes = useStyles();
   const loggedInUser = useState()[0];
   const [userName, setUserName] = useState();
   const [password, setPassword] = useState();
+  const [rememberLogin, setRememberLogin] = useState(false);
 
   const logoutClick = e => {
     e.preventDefault();
-    console.log("logout clicked");
+    axios
+      .post("/api/account/logout")
+      .then(function(response) {
+        console.log(response);
+        console.log("logout clicked");
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
   };
 
   const loginClick = e => {
     e.preventDefault();
-    console.log(`Username: ${userName} | Password: ${password}`);
+    axios
+      .post("/api/account/login", {
+        Username: userName,
+        Password: password,
+        ReturnUrl: ""
+      })
+      .then(function(response) {
+        console.log(response);
+        console.log(`Username: ${userName} | Password: ${password}`);
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
   };
 
   const loggedInMessage = (
@@ -86,7 +108,13 @@ const Login = () => {
             onChange={e => setPassword(e.target.value)}
           />
           <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
+            control={
+              <Checkbox
+                value="remember"
+                color="primary"
+                onChange={e => setRememberLogin(e.target.value)}
+              />
+            }
             label="Remember me"
           />
           <Button
