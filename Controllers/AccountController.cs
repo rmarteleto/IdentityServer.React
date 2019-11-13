@@ -113,12 +113,12 @@ namespace IdentityServer.React.Controllers
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
                     AuthenticationProperties props = null;
-                    if (AccountOptions.AllowRememberLogin && model.RememberLogin)
+                    if (model.RememberLogin)
                     {
                         props = new AuthenticationProperties
                         {
                             IsPersistent = true,
-                            ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
+                            ExpiresUtc = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(30))
                         };
                     };
 
@@ -155,7 +155,7 @@ namespace IdentityServer.React.Controllers
                 }
 
                 await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "invalid credentials", clientId: context?.ClientId));
-                ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
+                return new JsonResult("{'error':'Invalid username or password'}");
             }
 
             //// something went wrong, show form with error
@@ -209,7 +209,7 @@ namespace IdentityServer.React.Controllers
                 await HttpContext.SignOutAsync();
 
                 // raise the logout event
-               // await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
+                await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             }
 
             //var context = await _interaction.GetLogoutContextAsync(model.LogoutId);
