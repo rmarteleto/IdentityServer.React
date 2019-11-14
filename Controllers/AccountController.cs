@@ -1,7 +1,7 @@
 ﻿using IdentityModel;
 using IdentityServer.React.Controllers.Attributes;
+using IdentityServer.React.Controllers.Dto;
 using IdentityServer.React.Controllers.Tests;
-using IdentityServer.React.Model;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -20,7 +20,7 @@ namespace IdentityServer.React.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [SecurityHeaders]
+    //[SecurityHeaders]
     [AllowAnonymous]
     public class AccountController : Controller
     {
@@ -65,12 +65,19 @@ namespace IdentityServer.React.Controllers
         //    return View(vm);
         //}
 
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok("got it");
+        }
+
         /// <summary>
         /// Handle postback from username/password login
         /// </summary>
+        [Route("login")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginInputModel model)
+        //[ValidateAntiForgeryToken] only applied for cookies? http://angular-tips.com/blog/2014/05/json-web-tokens-introduction/
+        public async Task<IActionResult> Login([FromBody]LoginRequest model)
         {
             // check if we are in the context of an authorization request
             var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
@@ -105,15 +112,15 @@ namespace IdentityServer.React.Controllers
             if (ModelState.IsValid)
             {
                 // validate username/password against in-memory store
-                if (_users.ValidateCredentials(model.UserName, model.Password))
+                if (_users.ValidateCredentials(model.Username, model.Password))
                 {
-                    var user = _users.FindByUsername(model.UserName);
+                    var user = _users.FindByUsername(model.Username);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
                     AuthenticationProperties props = null;
-                    if (model.RememberLogin)
+                    if (model.RememberMe)
                     {
                         props = new AuthenticationProperties
                         {
@@ -154,7 +161,7 @@ namespace IdentityServer.React.Controllers
                     }
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "invalid credentials", clientId: context?.ClientId));
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.ClientId));
                 return new JsonResult("{'error':'Invalid username or password'}");
             }
 

@@ -2,7 +2,7 @@
 
 namespace IdentityServer.React.Controllers.Dto
 {
-    public class LoginInput
+    public class LoginRequest
     {
         [Required]
         public string Username { get; set; }
